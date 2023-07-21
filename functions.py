@@ -30,9 +30,9 @@ def getRois(conn, image):
             roi["points"] = points
             roi["gleason"] = gleason
 
-        # only want to process tumor annotations
-        if(roi["gleason"] != "None"):
-            output.append(roi)
+            # only want to process tumor annotations
+            if(roi["gleason"] != "None"):
+                output.append(roi)
 
     return output
 
@@ -87,8 +87,12 @@ def tileBoundsFromPolygon(polygon, m, n):
             if(polygon.is_valid):
                 percentOverlap = polygon.intersection(box2).area / box2.area
             else:
-                fixedPolygon = polygon.buffer(0)
-                percentOverlap = fixedPolygon.intersection(box2).area / box2.area
+                try:
+                    fixedPolygon = polygon.buffer(0)
+                    percentOverlap = fixedPolygon.intersection(box2).area / box2.area
+                except:
+                    print("intersection could not be fixed, discarding")
+                    percentOverlap = 0
 
         if(percentOverlap < 0.5):
             tiles.remove(box2)
@@ -169,20 +173,24 @@ def getTilesFromImage(imgId, conn):
 # get mxn boxes along the edge of an image
 def getEdgeBoxes(sizex, sizey, m, n):
     boxes = []
+
+    #skip some images because we don't need so many
+    skipFactor = 60
+
     # top edge
-    for i in range(0, sizex-500, m):
+    for i in range(0, sizex-500, m*skipFactor):
         box = Polygon([[i, 0], [i+500, 0], [i+500, 500], [i, 500]])
         boxes.append(box)
     # bottom edge
-    for i in range(0, sizex-500, m):
+    for i in range(0, sizex-500, m*skipFactor):
         box = Polygon([[i, sizey-500], [i+500, sizey-500], [i+500, sizey], [i, sizey]])
         boxes.append(box)
     # left edge
-    for i in range(0, sizey-500, n):
+    for i in range(0, sizey-500, n*skipFactor):
         box = Polygon([[0, i], [500, i], [500, i+500], [0, i+500]])
         boxes.append(box)
     # right edge
-    for i in range(0, sizey-500, n):
+    for i in range(0, sizey-500, n*skipFactor):
         box = Polygon([[sizex-500, i], [sizex, i], [sizex, i+500], [sizex-500, i+500]])
         boxes.append(box)
 
@@ -220,10 +228,10 @@ def getUnlabeledTilesFromImage(imgId, conn, m, n, allBoxes):
 
     finalTiles = []
 
-    # find 1000 (random) unlabeled boxes
+    # find 800 (random) unlabeled boxes
     validBoxes = 0
     boxes = []
-    while(validBoxes < 1000):
+    while(validBoxes < 800):
         randX = random.random()*(sizex - 1000)
         randY = random.random()*(sizey - 1000)
         box = Polygon([[randX, randY], [randX+500, randY], [randX+500, randY+500], [randX, randY+500]])
@@ -262,8 +270,8 @@ def isBackground(tile):
     mask = cv2.inRange(hsv, lower, upper)
     res = cv2.bitwise_and(tile, tile, mask = mask)
 
-    # is background if less than 5000 non-white pixels
-    if (np.count_nonzero(res) < 5000):
+    # is background if less than 75000 non-white pixels
+    if (np.count_nonzero(res) < 75000):
         return True
 
     return False
