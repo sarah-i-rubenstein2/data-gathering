@@ -6,6 +6,10 @@ This code is directly from this repo, so it is tailored to my uses
 
 ## Basic steps to using Omero python toolbox:
 
+### 0. Set up Omero python toolbox 
+
+https://omero-guides.readthedocs.io/en/latest/python/docs/setup.html
+
 ### 1. Establish a connection
 ```
 from omero.gateway import BlitzGateway, MapAnnotationWrapper
