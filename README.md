@@ -1,4 +1,4 @@
-# tumordeeplearning
+# data-gathering
 
 *Note:* Your "default group" in Omero must be set to the group you're tring to get images from, or it won't be able to get the ROIs
 
