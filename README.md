@@ -13,7 +13,7 @@ https://omero-guides.readthedocs.io/en/latest/python/docs/setup.html
 ### 1. Establish a connection
 ```
 from omero.gateway import BlitzGateway, MapAnnotationWrapper
-conn = BlitzGateway("USERNAME", "PASSWORD", host="wsi.lavlab.mcw.edu", secure=True)
+conn = BlitzGateway("USERNAME", "PASSWORD", host="wss://wsi.lavlab.mcw.edu/omero-wss", port=443, secure=True)
 conn.connect()
 conn.c.enableKeepAlive(60)
 ```
